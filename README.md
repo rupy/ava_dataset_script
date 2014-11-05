@@ -18,3 +18,7 @@ semantic_class.rb
 aethetics_class.rb
 
 aethetics listにもとづいて画像を振り分けるプログラム
+
+style_class.rb
+
+style IDにもとづいて画像を振り分けるプログラム
