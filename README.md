@@ -14,3 +14,7 @@ good_bad_class.rb
 semantic_class.rb
 
 セマンティックタグにもとづいて画像を振り分けるプログラム
+
+aethetics_class.rb
+
+aethetics listにもとづいて画像を振り分けるプログラム
