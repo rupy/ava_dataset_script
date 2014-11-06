@@ -19,6 +19,12 @@ class AvaManager
 		@image_source_dir = "image_max100k"
 
 		@semantic_tag_dir = "semantic_tag"
+
+		@style_image_lists_dir = "AVA_dataset/style_image_lists"
+		@style_output_dir = "style_class"
+		@styletxt = File.open("#{@ava_dir}/#{@style_image_lists_dir}/styles.txt").readlines
+		@style_info = parse_styletxt
+		@style_label_info = set_style_label_info
 	end
 
 	def parse_avatxt
@@ -37,8 +43,17 @@ class AvaManager
 	end
 
 	def parse_tagtxt
-		result = Array.new
+		result = Hash.new
 		@tagtxt.each do |line|
+			row = line.split
+			result[row[0].to_i] = row[1]
+		end
+		result
+	end
+
+	def parse_styletxt
+		result = Hash.new
+		@styletxt.each do |line|
 			row = line.split
 			result[row[0].to_i] = row[1]
 		end
@@ -159,6 +174,46 @@ class AvaManager
 			end
 			FileUtils.cp(from_path, to_path)
 
+		end
+
+	end
+
+	def get_stylename(id)
+		return "" if id == 0
+		@style_info[id]
+	end
+
+	def set_style_label_info
+		result = Hash.new 
+		train_ids = File.open( "#{@ava_dir}/#{@style_image_lists_dir}/train.jpgl").readlines.map{|line|line.to_i}
+		train_labs = File.open( "#{@ava_dir}/#{@style_image_lists_dir}/train.lab").readlines.map{|line|line.to_i}
+		Hash[*train_ids.zip(train_labs).flatten]
+	end
+
+	def generate_dir_for_style
+		
+		for i in 1..@style_info.size do
+			puts stylename = get_stylename(i)
+			style_path = "#{@ava_dir}/#{@style_output_dir}/#{sprintf("%02d", i)}_#{stylename}"
+			FileUtils.mkdir_p(style_path) unless FileTest.exist?(style_path)
+		end
+	end
+
+	def copy_by_style
+		generate_dir_for_style
+
+		@style_label_info.each do |image_id, label|
+			index = get_index_by_imageid(image_id)
+			from_path = get_from_path(index)
+			print "#{from_path} => "
+			unless FileTest.exist?(from_path)
+				puts "x"
+				next
+			end
+			print style_name = get_stylename(label), " "
+			to_path = "#{@ava_dir}/#{@style_output_dir}/#{sprintf("%02d", label)}_#{style_name}"
+			FileUtils.cp(from_path, to_path)
+			puts ""
 		end
 
 	end
