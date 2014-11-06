@@ -26,8 +26,9 @@ File.open("AVA_dataset/AVA.txt") do |f|
 		dir_num = (index -1) / 10000 + 1
 		from_path = "image_max100k/#{sprintf("%03d", dir_num)}/#{index.to_s}.jpg"
 		to_path = ""
-		puts from_path
+		print "#{from_path} => "
 		unless FileTest.exist?(from_path)
+			puts "x"
 			next
 		end
 		if good_votes_num > bad_votes_num
