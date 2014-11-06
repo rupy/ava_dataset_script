@@ -45,6 +45,11 @@ class AvaManager
 		result
 	end
 
+	def get_from_path(index)
+		dir_num = (index -1) / 10000 + 1
+		from_path = "#{@ava_dir}/#{@image_source_dir}/#{sprintf("%03d", dir_num)}/#{index.to_s}.jpg"
+	end
+
 	def get_index_by_imageid(id)
 		id = id.to_s unless id.is_a?(String)
 		line = @avatxt.find{|line| line.split[1] == id }
@@ -76,8 +81,7 @@ class AvaManager
 						puts "#{line} is not found in AVA.txt"
 						next
 					end
-					dir_num = (index -1) / 10000 + 1
-					from_path = "#{@ava_dir}/#{@image_source_dir}/#{sprintf("%03d", dir_num)}/#{index.to_s}.jpg"
+					from_path = get_from_path(index)
 					print "#{from_path} => "
 					unless FileTest.exist?(from_path)
 						puts "x"
@@ -110,9 +114,7 @@ class AvaManager
 		generate_dir_for_semantic
 
 		@ava_info.each do |line|
-			dir_num = (line['index'] -1) / 10000 + 1
-			from_path = "#{@ava_dir}/#{@image_source_dir}/#{sprintf("%03d", dir_num)}/#{line['index'].to_s}.jpg"
-			to_path = ""
+			from_path = get_from_path(line['index'])
 			print "#{from_path} => "
 			unless FileTest.exist?(from_path)
 				puts "x"
@@ -141,8 +143,7 @@ class AvaManager
 		generate_dir_for_good_bad
 
 		@ava_info.each do |line|
-			dir_num = (line['index'] -1) / 10000 + 1
-			from_path = "#{@ava_dir}/#{@image_source_dir}/#{sprintf("%03d", dir_num)}/#{line['index'].to_s}.jpg"
+			from_path = get_from_path(line['index'])
 			to_path = ""
 			print "#{from_path} => "
 			unless FileTest.exist?(from_path)
