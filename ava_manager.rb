@@ -60,9 +60,10 @@ class AvaManager
 		result
 	end
 
-	def get_from_path(index)
-		dir_num = (index -1) / 10000 + 1
-		from_path = "#{@ava_dir}/#{@image_source_dir}/#{sprintf("%03d", dir_num)}/#{index.to_s}.jpg"
+	def get_from_path(image_id)
+		image_id = image_id.to_i if image_id.is_a?(String)
+		dir_num = (image_id -1) / 10000 + 1
+		from_path = "#{@ava_dir}/#{@image_source_dir}/#{sprintf("%03d", dir_num)}/#{image_id.to_s}.jpg"
 	end
 
 	def get_index_by_imageid(id)
@@ -91,12 +92,11 @@ class AvaManager
 			File.open("#{@aesthetics_path}/#{file}") do |f|
 				f.each do |line|
 					line.chomp!
-					index = get_index_by_imageid(line)
-					if index.nil?
-						puts "#{line} is not found in AVA.txt"
-						next
-					end
-					from_path = get_from_path(index)
+					# if index.nil?
+					# 	puts "#{line} is not found in AVA.txt"
+					# 	next
+					# end
+					from_path = get_from_path(line)
 					print "#{from_path} => "
 					unless FileTest.exist?(from_path)
 						puts "x"
@@ -128,23 +128,26 @@ class AvaManager
 	def copy_by_semantic
 		generate_dir_for_semantic
 
-		@ava_info.each do |line|
-			from_path = get_from_path(line['index'])
+		@ava_info.each_with_index do |line, i|
+			print "#{i * 100 / @ava_info.length} % "
+			from_path = get_from_path(line['image_id'])
 			print "#{from_path} => "
 			unless FileTest.exist?(from_path)
 				puts "x"
 				next
 			end
-			line['semantic_tags'].each do |tag|
-				next if tag == 0
-				print tagname = get_tagname_from_id(tag), " "
-				to_path = "#{@ava_dir}/#{@semantic_tag_dir}/#{sprintf("%02d", tag)}_#{tagname}"
+			line['semantic_tags'].each do |tag_id|
+				next if tag_id == 0
+				print tagname = get_tagname_from_id(tag_id), " "
+				to_path = "#{@ava_dir}/#{@semantic_tag_dir}/#{sprintf("%02d", tag_id)}_#{tagname}"
 				FileUtils.cp(from_path, to_path)
 			end
-			print "@None" if line['semantic_tags'].all?{|tag|tag == 0}
+			# none of semantic tag
+			print "@None" if line['semantic_tags'].all?{|tag_id|tag_id == 0}
 			puts ""
 			
 		end
+		puts "100 %"
 	end
 
 	def generate_dir_for_good_bad
@@ -157,8 +160,10 @@ class AvaManager
 
 		generate_dir_for_good_bad
 
-		@ava_info.each do |line|
-			from_path = get_from_path(line['index'])
+		@ava_info.each_with_index do |line, i|
+
+			print "#{i * 100 / @ava_info.length} % "
+			from_path = get_from_path(line['image_id'])
 			to_path = ""
 			print "#{from_path} => "
 			unless FileTest.exist?(from_path)
@@ -175,6 +180,7 @@ class AvaManager
 			FileUtils.cp(from_path, to_path)
 
 		end
+		puts "100 %"
 
 	end
 
@@ -202,9 +208,9 @@ class AvaManager
 	def copy_by_style
 		generate_dir_for_style
 
-		@style_label_info.each do |image_id, label|
-			index = get_index_by_imageid(image_id)
-			from_path = get_from_path(index)
+		@style_label_info.each_with_index do |(image_id, label), i|
+			print "#{i * 100 / @style_label_info.size} % "
+			from_path = get_from_path(image_id)
 			print "#{from_path} => "
 			unless FileTest.exist?(from_path)
 				puts "x"
@@ -215,6 +221,7 @@ class AvaManager
 			FileUtils.cp(from_path, to_path)
 			puts ""
 		end
+		puts "100 %"
 
 	end
 end
