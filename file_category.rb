@@ -1,6 +1,6 @@
 require 'fileutils'
 
-home_dir = ".."
+home_dir = ARGV[0]
 
 category_num = 0
 Dir.foreach( home_dir ) do |file|
