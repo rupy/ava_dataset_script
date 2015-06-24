@@ -10,8 +10,13 @@ Dir.foreach( home_dir ) do |file|
 	# puts "+#{target_dir}"
 
 	Dir.foreach( target_dir ) do |file2|
+		target_file = "#{home_dir}/#{file2}"
 		next if file2 =~ /^\./
-		puts "#{target_dir}/#{file2} #{category_num}"
+		next if File.directory?(target_file)
+
+		full_path = File::expand_path(target_file)
+
+		puts "#{full_path} #{category_num}"
 
 	end
 	category_num += 1
